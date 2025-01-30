@@ -67,13 +67,13 @@ PLOT1_ARGS = \
        shape_2=cross color_2=grey \
        leglabel_2='2: not_tmz_star' \
     layer_4=Mark \
-       icmd_4='select classprob_dsc_combmod_quasar>0.5' \
+       icmd_4='select in_qso_candidates' \
        color_4=magenta \
-       leglabel_4='2: dsc_qso' \
+       leglabel_4='2: qso_cand' \
     layer_5=Mark \
-       icmd_5='select classprob_dsc_combmod_galaxy>0.5' \
+       icmd_5='select in_galaxy_candidates' \
        color_5=cyan \
-       leglabel_5='2: dsc_galaxy' \
+       leglabel_5='2: galaxy_cand' \
 
 plot1: gaia-q1.fits
 	stilts plot2plane \
