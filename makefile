@@ -7,7 +7,11 @@ POLY_S = 68.69,-47.21, 64.08,-44.36, 53.65,-48.43, 59.13,-53.58
 
 COLUMNS = source_id, ra, dec, parallax, pmra, pmdec, \
           ra_error, dec_error, parallax_error, pmra_error, pmdec_error, \
+          pm, \
           random_index, phot_g_mean_mag, phot_bp_mean_mag, phot_rp_mean_mag, \
+          bp_rp, bp_g, g_rp, \
+          phot_g_mean_flux_error, \
+          phot_bp_mean_flux_error, phot_rp_mean_flux_error, \
           in_qso_candidates, in_galaxy_candidates, \
           classprob_dsc_combmod_quasar, classprob_dsc_combmod_galaxy, \
           classprob_dsc_combmod_star
@@ -16,6 +20,7 @@ POST_FILTER = \
     ocmd='addcol parallax_over_error sqrt(square(parallax/parallax_error))' \
     ocmd='addcol pm_over_error hypot(pmra/pmra_error,pmdec/pmdec_error)' \
     ocmd='addcol tmz_star parallax_over_error>5||pm_over_error>5' \
+    ocmd='addcol dpac_galqso in_galaxy_candidates||in_qso_candidates' \
     ocmd='addcol negative_parallax parallax<0' \
 
 DATA_FILES = gaia-f.fits gaia-n.fits gaia-s.fits gaia-q1.fits
