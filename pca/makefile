@@ -14,15 +14,9 @@ STILTS = ./stilts
 COLS = source_id ra dec l b \
        parallax pmra pmdec \
        phot_g_mean_mag phot_bp_mean_mag phot_rp_mean_mag \
-       ra_error dec_error parallax_error pmra_error pmdec_error \
        radial_velocity radial_velocity_error \
-       pseudocolour pseudocolour_error \
-       grvs_mag grvs_mag_error grvs_mag_nb_transits \
-       ruwe \
-       astrometric_n_obs_al astrometric_n_obs_ac astrometric_n_good_obs_al \
-       astrometric_n_bad_obs_al astrometric_gof_al astrometric_chi2_al \
-       astrometric_excess_noise astrometric_excess_noise_sig \
-       astrometric_params_solved astrometric_primary_flag \
+       pseudocolour \
+       grvs_mag grvs_mag_nb_transits \
        nu_eff_used_in_astrometry \
        teff_gspphot logg_gspphot mh_gspphot distance_gspphot \
        azero_gspphot ag_gspphot ebpminrp_gspphot \
