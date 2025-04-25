@@ -68,7 +68,7 @@ gaia.fits gaia.csv: $(STILTS)
 match.fits match.csv: $(STILTS) 2mass.fits gaia.fits
 	$(STILTS) tskymatch2 in1=2mass.fits ra1=ra_2mass dec1=dec_2mass \
                              in2=gaia.fits ra2=ra_gaia dec2=dec_gaia \
-                             find=all error=$(MATCH_TOL) \
+                             find=best1 error=$(MATCH_TOL) \
                              out=$@
 
 plot: 2mass.fits gaia.fits match.fits
