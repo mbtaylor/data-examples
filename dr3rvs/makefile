@@ -9,7 +9,7 @@ build: $(SPECTRA_FILE) \
 
 clean:
 	rm -f plot.pdf plot.svg plot.png
-	rm -f plot_basic.pdf plot_quantiles.pdf plot_linear.pdf
+	rm -f plot_basic.pdf plot_quartiles.pdf plot_linear.pdf
 
 veryclean: clean
 	rm -f stilts.jar stilts
@@ -58,7 +58,7 @@ plot_basic.pdf plot_basic.png plot_basic.svg: $(SPECTRA_FILE) stilts
 	$(PLOT_CMD) \
         seq=1 out=$@
 
-plot_quantiles.pdf plot_quantiles.png plot_quantiles.svg: $(SPECTRA_FILE) stilts
+plot_quartiles.pdf plot_quartiles.png plot_quartiles.svg: $(SPECTRA_FILE) stilts
 	$(PLOT_CMD) \
         seq=1,2 out=$@
 
