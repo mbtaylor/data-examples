@@ -1,7 +1,21 @@
 
-SPECTRA_FILE = dr3rvs_all.fits
-# SPECTRA_FILE = dr3rvs_sample.fits
+# Makefile for acquiring all the rvs_mean_spectra and storing them
+# in a single STILTS/TOPCAT-friendly file.  Options also exist
+# for doing the same thing with a subsample of the data.
+# Running this will require about 40 Gb of free space in the
+# current directory.  Download and processing maybe a couple of hours.
+
+# Comment out one of the two SPECTRA_FILE definitions below,
+# depending on whether you want all the 999,645 spectra or
+# just a few.  You can adjust the sample size too.
+# It might be a good idea to start with a subsample before working
+# with the big file (18Gb).
+
+# SPECTRA_FILE = dr3rvs_all.fits
+SPECTRA_FILE = dr3rvs_sample.fits
 SAMPLE_SIZE = 2000
+
+ECSV_DIR = rvs_mean_spectrum
 STILTS = ./stilts
 
 build: $(SPECTRA_FILE) \
@@ -31,12 +45,25 @@ dr3rvs_sample.fits: stilts
            sync=true \
            out=$@
 
-dr3rvs_all.fits:
-	$(STILTS) \
-           tapquery tapurl=https://gaia.ari.uni-heidelberg.de/tap \
-           maxrec=1000000 \
-           adql='SELECT * FROM gaiadr3.rvs_mean_spectrum' \
-           out=$@
+# This worked once, but effective limits at the ARI-Gaia service
+# mean that that it probably will fail now.
+
+#dr3rvs_all.fits:
+#	$(STILTS) \
+#           tapquery tapurl=https://gaia.ari.uni-heidelberg.de/tap \
+#           maxrec=1000000 \
+#           adql='SELECT * FROM gaiadr3.rvs_mean_spectrum' \
+#           out=$@
+
+dr3rvs_all.fits: stilts $(ECSV_DIR)/all-downloaded
+	( cd $(ECSV_DIR); \
+          ../stilts tcat ifmt=ecsv in=@../ecsv-names.lis \
+                         countrows=true lazy=true \
+                         ocmd=progress \
+                         out=../$@ )
+
+$(ECSV_DIR)/all-downloaded: ecsv-names.lis
+	sh download-ecsvs.sh && touch $@
 
 PLOT_CMD=$(STILTS) plot2plane \
                    xpix=1200 ypix=500 \
