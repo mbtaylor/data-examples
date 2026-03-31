@@ -53,6 +53,7 @@ PLOT_CMD=$(STILTS) plot2plane \
 		   layer_L2=Function fexpr_L2=854.444 \
                    layer_L3=Function fexpr_L3=866.452 \
                    xmin=846 xmax=870 ymax=4 \
+                   fontsize=12 \
                    minor=false \
                    xcrowd=0.5 \
                    xlabel='Rest wavelength (nm)' \
