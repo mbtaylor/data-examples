@@ -16,30 +16,25 @@ SPECTRA_FILE = dr3rvs_sample.fits
 SAMPLE_SIZE = 2000
 
 ECSV_DIR = rvs_mean_spectrum
-STILTS = ./stilts
+ECSV_TMPDIR = rvs_mean_spectrum-progress
+RVS_URL = https://cdn.gea.esac.esa.int/Gaia/gdr3/Spectroscopy/rvs_mean_spectrum
+STILTS = stilts
 
-build: $(SPECTRA_FILE) \
-       plot.pdf
+data: $(SPECTRA_FILE)
+
+build: data plot.pdf
 
 clean:
 	rm -f plot.pdf plot.svg plot.png
 	rm -f plot_basic.pdf plot_quartiles.pdf plot_linear.pdf
 
 veryclean: clean
-	rm -f stilts.jar stilts
 	rm -f ecsv-names.lis
 	rm -f $(SPECTRA_FILE)
-
-stilts.jar:
-	curl -OL http://www.starlink.ac.uk/stilts/stilts.jar
-
-stilts: stilts.jar
-	jar xf stilts.jar stilts
-	touch stilts
-	chmod +x stilts
+	rm -rf $(ECSV_DIR) $(ECSV_TMPDIR)
 
 # If this times out, try sync=false instead.
-dr3rvs_sample.fits: stilts
+dr3rvs_sample.fits:
 	$(STILTS) \
            tapquery tapurl=https://gaia.ari.uni-heidelberg.de/tap \
            adql='SELECT TOP $(SAMPLE_SIZE) * FROM gaiadr3.rvs_mean_spectrum' \
@@ -56,18 +51,31 @@ dr3rvs_sample.fits: stilts
 #           adql='SELECT * FROM gaiadr3.rvs_mean_spectrum' \
 #           out=$@
 
-dr3rvs_all.fits: stilts $(ECSV_DIR)/all-downloaded
+dr3rvs_all.fits: $(ECSV_DIR)
 	( cd $(ECSV_DIR); \
-          ../stilts tcat ifmt=ecsv in=@../ecsv-names.lis \
+          $(STILTS) tcat ifmt=ecsv in=@../ecsv-names.lis \
                          countrows=true lazy=true \
                          ocmd=progress \
-                         out=../$@ )
+                         out=../tmp-$@ )
+	mv tmp-$@ $@
 
-$(ECSV_DIR)/all-downloaded: ecsv-names.lis
-	sh download-ecsvs.sh && touch $@
+$(ECSV_DIR): ecsv-names.lis
+	mkdir -p $(ECSV_TMPDIR)
+	rm -f $(ECSV_TMPDIR)/part-*
+	while read f; \
+        do \
+           if [ -r $(ECSV_TMPDIR)/$$f ]; then \
+              /bin/echo -n .; \
+           else \
+              echo $$f; \
+              curl -s $(RVS_URL)/$$f > $(ECSV_TMPDIR)/part-$$f && \
+              mv $(ECSV_TMPDIR)/part-$$f $(ECSV_TMPDIR)/$$f; \
+           fi; \
+        done < ecsv-names.lis
+	ln -s $(ECSV_TMPDIR) $(ECSV_DIR)
 
 ecsv-names.lis:
-	curl -s https://cdn.gea.esac.esa.int/Gaia/gdr3/Spectroscopy/rvs_mean_spectrum/_MD5SUM.txt \
+	curl -s $(RVS_URL)/_MD5SUM.txt \
              | awk '/.csv.gz/{print $$2}' \
              > $@
 
@@ -93,10 +101,10 @@ PLOT_CMD=$(STILTS) -Xmx24G \
                    xlabel='Rest wavelength (nm)' \
                    ylabel='Normalised flux' \
 
-plot: $(SPECTRA_FILE) stilts
+plot: $(SPECTRA_FILE)
 	$(PLOT_CMD)
 
-plot.pdf plot.png plot.svg: $(SPECTRA_FILE) stilts
+plot.pdf plot.png plot.svg: $(SPECTRA_FILE)
 	$(PLOT_CMD) \
         out=$@
 
