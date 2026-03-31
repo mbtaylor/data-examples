@@ -5,7 +5,7 @@ SAMPLE_SIZE = 2000
 STILTS = ./stilts
 
 build: $(SPECTRA_FILE) \
-       plot_basic.pdf plot_quartiles.pdf plot_linear.pdf
+       plot.pdf
 
 clean:
 	rm -f plot.pdf plot.svg plot.png
@@ -23,10 +23,12 @@ stilts: stilts.jar
 	touch stilts
 	chmod +x stilts
 
+# If this times out, try sync=false instead.
 dr3rvs_sample.fits: stilts
 	$(STILTS) \
            tapquery tapurl=https://gaia.ari.uni-heidelberg.de/tap \
            adql='SELECT TOP $(SAMPLE_SIZE) * FROM gaiadr3.rvs_mean_spectrum' \
+           sync=true \
            out=$@
 
 dr3rvs_all.fits:
@@ -39,30 +41,27 @@ dr3rvs_all.fits:
 PLOT_CMD=$(STILTS) plot2plane \
                    xpix=1200 ypix=500 \
                    in=$(SPECTRA_FILE) icmd=progress \
-                   xs='sequence(2401,840,0.01)' ys=flux \
-                   layer1=lines \
-                          shading1=density densemap1=inferno \
-                   layer2=arrayquantile \
-                          color2=green transparency2=0.35 \
-                          quantiles2=0.25,0.75 \
-                   xmin=840 xmax=864 ymax=2.01 \
+                   xs='sequence(2401,846,0.01)' ys=flux \
+                   layer_1=lines \
+                           shading_1=density densemap_1=inferno \
+                   layer_2=arrayquantile \
+                           color_2=green transparency_2=0.35 \
+                           quantiles_2=0.25,0.75 \
+                   axis_L=Vertical \
+                   color_L=grey \
+                   layer_L1=Function fexpr_L1=850.035 \
+		   layer_L2=Function fexpr_L2=854.444 \
+                   layer_L3=Function fexpr_L3=866.452 \
+                   xmin=846 xmax=870 ymax=4 \
                    minor=false \
                    xcrowd=0.5 \
-                   xlabel='Wavelength (nm)' \
+                   xlabel='Rest wavelength (nm)' \
                    ylabel='Normalised flux' \
 
 plot: $(SPECTRA_FILE) stilts
 	$(PLOT_CMD)
 
-plot_basic.pdf plot_basic.png plot_basic.svg: $(SPECTRA_FILE) stilts
+plot.pdf plot.png plot.svg: $(SPECTRA_FILE) stilts
 	$(PLOT_CMD) \
-        seq=1 out=$@
-
-plot_quartiles.pdf plot_quartiles.png plot_quartiles.svg: $(SPECTRA_FILE) stilts
-	$(PLOT_CMD) \
-        seq=1,2 out=$@
-
-plot_linear.pdf plot_linear.png plot_linear.svg: $(SPECTRA_FILE) stilts
-	$(PLOT_CMD) \
-        seq=1 densefunc1=linear out=$@
+        out=$@
 
