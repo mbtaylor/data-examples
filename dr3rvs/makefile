@@ -65,7 +65,8 @@ dr3rvs_all.fits: stilts $(ECSV_DIR)/all-downloaded
 $(ECSV_DIR)/all-downloaded: ecsv-names.lis
 	sh download-ecsvs.sh && touch $@
 
-PLOT_CMD=$(STILTS) plot2plane \
+PLOT_CMD=$(STILTS) -Xmx24G \
+                   plot2plane \
                    xpix=1200 ypix=500 \
                    in=$(SPECTRA_FILE) icmd=progress \
                    xs='sequence(2401,846,0.01)' ys=flux \
