@@ -27,6 +27,7 @@ clean:
 
 veryclean: clean
 	rm -f stilts.jar stilts
+	rm -f ecsv-names.lis
 	rm -f $(SPECTRA_FILE)
 
 stilts.jar:
@@ -64,6 +65,11 @@ dr3rvs_all.fits: stilts $(ECSV_DIR)/all-downloaded
 
 $(ECSV_DIR)/all-downloaded: ecsv-names.lis
 	sh download-ecsvs.sh && touch $@
+
+ecsv-names.lis:
+	curl -s https://cdn.gea.esac.esa.int/Gaia/gdr3/Spectroscopy/rvs_mean_spectrum/_MD5SUM.txt \
+             | awk '/.csv.gz/{print $$2}' \
+             > $@
 
 PLOT_CMD=$(STILTS) -Xmx24G \
                    plot2plane \
